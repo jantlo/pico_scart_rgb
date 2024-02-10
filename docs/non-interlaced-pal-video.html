@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="author" content="Gary Preston">
+
+  
+  
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Non-Interlaced PAL Video : www.mups.co.uk</title>
+
+  <meta name="description" content="The Electron has two video outputs, composite out and RGBs. As a UK device, I also assumed it was producing a standard PAL signal, 576i @ 50Hz. However whilst reading up on the PAL standard and figuring out how the Replay_VideoTiming component worked in order to tweak it to generate a PAL signal based on the 16MHz clock the electron used, I happened upon an interesting &quot;tweak&quot; to the PAL spec.">
+
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <meta property="og:locale" content="en_US">
+  <meta property="og:title" content="Non-Interlaced PAL Video : www.mups.co.uk">
+  <meta property="og:image" content="https://www.mups.co.uk/images/robot_profile_small.png ">
+  <meta property="og:description" content="The Electron has two video outputs, composite out and RGBs. As a UK device, I also assumed it was producing a standard PAL signal, 576i @ 50Hz. However whilst reading up on the PAL standard and figuring out how the Replay_VideoTiming component worked in order to tweak it to generate a PAL signal based on the 16MHz clock the electron used, I happened upon an interesting &quot;tweak&quot; to the PAL spec.">
+  <meta property="og:site_name" content="www.mups.co.uk">
+  
+  <meta name="generator" content="Hugo 0.83.0">
+
+  <link href="non-interlaced-pal-video_files/styles.css" rel="stylesheet">
+
+  
+  
+  
+<style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 5px 0px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px; -khtml-border-radius: 5px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 1px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: .7em}
+.MathJax_MenuRadioCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuLabel {padding: 1px 2em 3px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #DDDDDD; margin: 4px 3px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: #606872; color: white}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1px; bottom: 2px; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style><style type="text/css">.MathJax_Display {text-align: center; margin: 1em 0em; position: relative; display: block!important; text-indent: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; width: 100%}
+.MathJax .merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MathJax .MJX-monospace {font-family: monospace}
+.MathJax .MJX-sans-serif {font-family: sans-serif}
+#MathJax_Tooltip {background-color: InfoBackground; color: InfoText; border: 1px solid black; box-shadow: 2px 2px 5px #AAAAAA; -webkit-box-shadow: 2px 2px 5px #AAAAAA; -moz-box-shadow: 2px 2px 5px #AAAAAA; -khtml-box-shadow: 2px 2px 5px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true'); padding: 3px 4px; z-index: 401; position: absolute; left: 0; top: 0; width: auto; height: auto; display: none}
+.MathJax {display: inline; font-style: normal; font-weight: normal; line-height: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-align: left; text-transform: none; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; padding: 0; margin: 0}
+.MathJax:focus, body :focus .MathJax {display: inline-table}
+.MathJax.MathJax_FullWidth {text-align: center; display: table-cell!important; width: 10000em!important}
+.MathJax img, .MathJax nobr, .MathJax a {border: 0; padding: 0; margin: 0; max-width: none; max-height: none; min-width: 0; min-height: 0; vertical-align: 0; line-height: normal; text-decoration: none}
+img.MathJax_strut {border: 0!important; padding: 0!important; margin: 0!important; vertical-align: 0!important}
+.MathJax span {display: inline; position: static; border: 0; padding: 0; margin: 0; vertical-align: 0; line-height: normal; text-decoration: none}
+.MathJax nobr {white-space: nowrap!important}
+.MathJax img {display: inline!important; float: none!important}
+.MathJax * {transition: none; -webkit-transition: none; -moz-transition: none; -ms-transition: none; -o-transition: none}
+.MathJax_Processing {visibility: hidden; position: fixed; width: 0; height: 0; overflow: hidden}
+.MathJax_Processed {display: none!important}
+.MathJax_ExBox {display: block!important; overflow: hidden; width: 1px; height: 60ex; min-height: 0; max-height: none}
+.MathJax .MathJax_EmBox {display: block!important; overflow: hidden; width: 1px; height: 60em; min-height: 0; max-height: none}
+.MathJax_LineBox {display: table!important}
+.MathJax_LineBox span {display: table-cell!important; width: 10000em!important; min-width: 0; max-width: none; padding: 0; border: 0; margin: 0}
+.MathJax .MathJax_HitBox {cursor: text; background: white; opacity: 0; filter: alpha(opacity=0)}
+.MathJax .MathJax_HitBox * {filter: none; opacity: 1; background: transparent}
+#MathJax_Tooltip * {filter: none; opacity: 1; background: transparent}
+@font-face {font-family: MathJax_Blank; src: url('about:blank')}
+.MathJax .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style></head>
+<body lang="en"><div style="visibility: hidden; overflow: hidden; position: absolute; top: 0px; height: 1px; width: auto; padding: 0px; border: 0px; margin: 0px; text-align: left; text-indent: 0px; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal;"><div id="MathJax_Hidden"></div></div><div id="MathJax_Message" style="display: none;"></div>
+
+<header>
+  <div class="container-fluid" id="page-header">
+    <div class="row-fluid">
+      <div class="col-md-12">
+        <img class="img-responsive" src="non-interlaced-pal-video_files/header.png" alt="header logo" width="1024" height="160">
+
+        <p class="slogan">
+          <strong>Gary Preston's Portfolio and Blog</strong>
+        </p>
+      </div>
+    </div>
+
+    
+<nav class="nav-menu">
+  <ul>
+     
+     
+     <li class="">
+       <a href="https://www.mups.co.uk/about/">About</a>
+     </li>
+     
+     
+     <li class="">
+       <a href="https://www.mups.co.uk/post/">Blog</a>
+     </li>
+     
+     
+     <li class="">
+       <a href="https://www.mups.co.uk/guide/">Guides</a>
+     </li>
+     
+     
+     <li class="">
+       <a href="https://www.mups.co.uk/project/">Projects</a>
+     </li>
+     
+
+     
+     <li>
+        <a href="https://mastodon.social/@hicks" rel="me"><img src="non-interlaced-pal-video_files/mastodon-logo.svg" width="15px" height="15" alt="mastodon logo"></a>
+     </li>
+     
+
+     
+
+     
+     <li>
+        <a href="https://github.com/Sector14/"><img src="non-interlaced-pal-video_files/github-logo.svg" width="15px" height="15" alt="github logo"></a>
+     </li>
+     
+
+     
+  </ul>
+</nav>
+
+
+<nav class="nav-menu">
+  <ul>
+     
+       
+
+       
+     
+       
+
+       
+     
+       
+
+       
+     
+       
+
+       
+     
+  </ul>
+</nav>
+
+
+
+  </div>
+</header>
+
+<div class="container-fluid">
+
+
+
+<div id="page-wrapper">
+
+    <main id="page-main">
+
+        
+        
+            <div class="page-item">
+            
+                <article class="post">
+    <header class="post-info">
+        <h1 class="title"><a href="https://www.mups.co.uk/post/2017/07/non-interlaced-pal-video/">Non-Interlaced PAL Video</a></h1>
+        <div class="meta">
+            
+
+
+
+
+
+
+
+<time class="published" datetime="2017-07-22T17:20:32+01:00">
+    <span class="glyphicon glyphicon-calendar"></span>
+    Sat, Jul 22, 2017
+</time>
+
+            <span class="author">
+                <span class="glyphicon glyphicon-user"></span>
+                Gary
+            </span>
+
+            
+                <span class="reading-time">
+                    <span class="glyphicon glyphicon-book"></span>
+                    10 minute read
+                </span>
+            
+
+            <span class="feed">
+                    <a href="https://www.mups.co.uk/post/index.xml">
+                        <img src="non-interlaced-pal-video_files/feed-icon-14x14.png" alt="RSS Feed" width="14" height="14">
+                    </a>
+            </span>
+
+            <span class="tags">
+                <ul>
+                    <span class="glyphicon glyphicon-tags"></span>
+                    
+                    <li>
+                        <a href="https://www.mups.co.uk/tags/fpgareplay">fpgareplay</a>
+                    </li>
+                    
+                    <li>
+                        <a href="https://www.mups.co.uk/tags/fpga">fpga</a>
+                    </li>
+                    
+                    <li>
+                        <a href="https://www.mups.co.uk/tags/acorn-electron">acorn electron</a>
+                    </li>
+                    
+                    <li>
+                        <a href="https://www.mups.co.uk/tags/hardware">hardware</a>
+                    </li>
+                    
+                </ul>
+            </span>
+        </div>
+    </header>
+
+    
+
+
+
+
+    
+    
+    
+
+    
+    
+    <div class="banner">
+        <a href="https://www.mups.co.uk/post/2017/07/non-interlaced-pal-video/">
+            <figure style="background-image: url(https://www.mups.co.uk/images/blog/3rdparty/misc/banner-pal-timing.jpg);">
+            </figure>
+        </a>
+        
+            <figcaption class="banner-attribution">
+                <a href="http://www.batsocks.co.uk/readme/video_timing.htm">batsocks</a>
+            </figcaption>
+        
+    </div>
+
+
+
+    <div class="post-content">
+        <p>After quite a lot of research to find any documentation I could relating to the Electron, I took
+a copy of the <a href="https://www.mups.co.uk/post/2017/06/fpga-replay---audio-framework/">Getting Started</a> core and decided to tackle the
+core in roughly the following order</p>
+<ol>
+<li>Video Signal</li>
+<li>RAM/ROM</li>
+<li>CPU</li>
+<li>ULA RAM/Rom interface and video</li>
+<li>ULA Keyboard</li>
+<li>ULA Cassette</li>
+<li>ULA Sound</li>
+<li>Expansion port</li>
+</ol>
+<p>In this and a few subsequent blog posts I’ll present an overview of these steps and
+the issues encountered along the way. Before all that, a small detour is needed to
+discuss the PAL standard.</p>
+<h1 id="pal-video">PAL Video</h1>
+<p>The Electron supports several different graphics modes but each is based on a
+640x256 resolution with the 320 and 160 modes having double/quad pixels and some
+of the text modes having 2 blank lines after every 8 vertical lines.</p>
+<p>With no other part of the Electron implemented, there’s little to output
+video wise, but I wanted to get the signal itself working and at least
+output a fixed fill colour to the TV.</p>
+<p>The Electron has two video outputs, composite out and RGBs. As a UK device, I
+also assumed it was producing a standard PAL signal, 576i @ 50Hz. However whilst
+reading up on the PAL standard and figuring out how the Replay_VideoTiming component
+worked in order to tweak it to generate a PAL signal based on the 16MHz clock
+the electron used, I happened upon an interesting “tweak” to the PAL spec.</p>
+<figure><img src="non-interlaced-pal-video_files/20170715-pal-timing-signal.gif" alt="PAL Interlaced Timing"><figcaption>
+            <p>PAL Interlaced Timing
+                    <a href="http://www.batsocks.co.uk/readme/video_timing.htm">Batsocks</a></p>
+        </figcaption>
+</figure>
+
+<p>The timing diagram above shows a complete frame of 625 lines that make up
+the PAL signal. As PAL is an interlaced standard, the data is split across two fields
+of 312.5 lines per field. Even lines are output in field one and odd lines in field
+2. The second field is also offset by half a scan-line which results in the TV
+offsetting the two fields vertically. This produces a 576i display at 50Hz.</p>
+<p>If however the short sync on line 313 is extended by another half a line,
+field 2 now starts on line 314 and its timing matches that of field 1.</p>
+<p>Field 1 can thus be output twice and the lack of a half scan-line offset
+results in the removal of the vertical interlacing offset
+causing both the even and odd fields to overlay each other. This effectively reduces
+the vertical resolution in half to give a 288p @50Hz resolution rather
+than 576i @ 50HZ. The resulting progressive display has less flickering compared
+to the interlaced signal at the cost of vertical resolution.</p>
+<p>If you’ve not fallen asleep yet, you may be thinking, 313 lines and the field
+duplicated, that’s 626 lines when PAL is only 625? This can be “fixed” by dropping
+the last “visible” line, 310 of each frame to give 624 lines. It may also work
+to drop 310 only from every other frame to match 625 lines, however this complicates
+implementation and doesn’t appear to be required.</p>
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+
+
+
+
+
+      
+      
+      
+    
+     
+      
+    
+    
+
+    
+    
+         
+         
+         
+
+         
+        
+        
+        
+        
+        
+        
+        
+        
+      
+      
+    
+  
+
+
+<blockquote>
+  <p>
+Why would anyone want to use a non-interlaced mode on a tv screen if it 
+(seemingly) halves the vertical resolution? Isn't the resolution of a 
+regular tv set bad enough to begin with?
+</p>
+  <footer>
+    <strong>Niccolo</strong>
+    
+      
+        <cite>
+          <a href="http://www.rigacci.org/docs/biblio/online/pal_video/" title="http://www.rigacci.org/docs/biblio/online/pal_video/">rigacci.org/docs/biblio/online/...</a> 
+        </cite>
+      
+    
+  </footer>
+</blockquote>
+<p>For why, refer to the section on “Non-interlaced modes”
+on <a href="http://www.rigacci.org/docs/biblio/online/pal_video/">Niccolo’s site</a>
+which also has example images of the resulting scan-lines due to the skipped interlaced
+field offset, which may be familiar to many amiga owners.</p>
+<p>Two other good resources on PAL are the <a href="http://martin.hinner.info/vga/pal.html">PAL Video Timing Specification</a>
+and <a href="http://www.batsocks.co.uk/readme/video_timing.htm">Batsock’s Video Timing</a> articles.</p>
+<p>That said, I have no evidence to show whether the Electron used a non-interlaced PAL
+signal or the more normal 576i, this may remain a mystery for a while longer until I either buy one
+or reverse engineering of the ULA happens. Regardless, I added timings for a 287p mode
+that runs off of a 16MHz dot clock to match the ULA clock. It may be useful for future
+projects and provided a excuse to learn how the Replay generates video signals.</p>
+<p>Here’s how…</p>
+<h2 id="replay-287p-mode">Replay 287p Mode</h2>
+<p>To get this working with the Replay, I wanted to make use of the Replay_VideoTiming
+component that some other cores use and to make this mode available for other cores
+that may need it. This involves adding a new set of timing parameters
+to the Replay_VideoTiming_Pack as well as a few tweaks to the VideoTiming code itself
+to account for the extended pulse on line 313.</p>
+<p>There’s not really any documentation on this, but in case you need to add a new mode
+or adjust an existing mode to work with a different video clock I’ll provide a rough
+overview.</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-vhdl" data-lang="vhdl">  <span style="color:#00f">constant</span> c_Vidparam_832x287p_50_16MHz : r_Vidparam_int := (
+    <span style="color:#f00;font-style:italic">-- 832x256p @ 50Hz 16MHz pclk</span>
+    rep_h           =&gt; <span style="color:#009c00">'0'</span>,
+    total_h         =&gt; 1024,
+    active_h        =&gt; 832,  <span style="color:#f00;font-style:italic">-- 91bp, 26fp, 75hs</span>
+    syncp_h         =&gt; 26,
+    syncw_h         =&gt; 75,
+    <span style="color:#f00;font-style:italic">--</span>
+    total_v         =&gt; 312,
+    active_v        =&gt; 287,  <span style="color:#f00;font-style:italic">-- two lines dropped per field</span>
+    <span style="color:#f00;font-style:italic">--</span>
+    fline_f1_v      =&gt; 22,
+    lline_f1_v      =&gt; 309,  <span style="color:#f00;font-style:italic">-- one line lost</span>
+    fline_f2_v      =&gt; 0,
+    lline_f2_v      =&gt; 0,
+    <span style="color:#f00;font-style:italic">--</span>
+    start_f1_v      =&gt; 312,
+    start_f2_v      =&gt; 0,
+    <span style="color:#f00;font-style:italic">--</span>
+    fsync_f1_v      =&gt; 312,
+    lsync_f1_v      =&gt; 3,
+    fsync_f2_v      =&gt; 0,
+    lsync_f2_v      =&gt; 0,
+    <span style="color:#f00;font-style:italic">--</span>
+    syncpol_h       =&gt; <span style="color:#009c00">'0'</span>, <span style="color:#f00;font-style:italic">-- active low</span>
+    syncpol_v       =&gt; <span style="color:#009c00">'0'</span>, <span style="color:#f00;font-style:italic">-- active low</span>
+    progressive     =&gt; <span style="color:#009c00">'1'</span>
+  );
+</code></pre></div><p>Why 1024 total “pixels”? This is down to the 16MHz dot clock that the ULA will be using
+and as PAL runs with a horizontal frequency of 15.625kHz</p>
+<div><span class="MathJax_Preview" style="color: inherit; display: none;"></span><div class="MathJax_Display" style="text-align: center;"><span class="MathJax" id="MathJax-Element-1-Frame" tabindex="0" style="text-align: center; position: relative;" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot;&gt;&lt;mfrac&gt;&lt;mrow&gt;&lt;mn&gt;16&lt;/mn&gt;&lt;mi&gt;M&lt;/mi&gt;&lt;mi&gt;h&lt;/mi&gt;&lt;mi&gt;z&lt;/mi&gt;&lt;/mrow&gt;&lt;mrow&gt;&lt;mn&gt;15.625&lt;/mn&gt;&lt;mi&gt;k&lt;/mi&gt;&lt;mi&gt;H&lt;/mi&gt;&lt;mi&gt;z&lt;/mi&gt;&lt;/mrow&gt;&lt;/mfrac&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mn&gt;1024&lt;/mn&gt;&lt;/math&gt;" role="presentation"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-1" style="width: 9.967em; display: inline-block;"><span style="display: inline-block; position: relative; width: 8.343em; height: 0px; font-size: 119%;"><span style="position: absolute; clip: rect(0.73em, 1008.31em, 3.169em, -1000em); top: -2.281em; left: 0em;"><span class="mrow" id="MathJax-Span-2"><span class="mfrac" id="MathJax-Span-3"><span style="display: inline-block; position: relative; width: 4.775em; height: 0px; margin-right: 0.12em; margin-left: 0.12em;"><span style="position: absolute; clip: rect(3.148em, 1003.1em, 4.224em, -1000em); top: -4.698em; left: 50%; margin-left: -1.548em;"><span class="mrow" id="MathJax-Span-4"><span class="mn" id="MathJax-Span-5" style="font-family: MathJax_Main;">16</span><span class="mi" id="MathJax-Span-6" style="font-family: MathJax_Math; font-style: italic;">M<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.081em;"></span></span><span class="mi" id="MathJax-Span-7" style="font-family: MathJax_Math; font-style: italic;">h</span><span class="mi" id="MathJax-Span-8" style="font-family: MathJax_Math; font-style: italic;">z<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.003em;"></span></span></span><span style="display: inline-block; width: 0px; height: 4.022em;"></span></span><span style="position: absolute; clip: rect(3.148em, 1004.66em, 4.224em, -1000em); top: -3.336em; left: 50%; margin-left: -2.328em;"><span class="mrow" id="MathJax-Span-9"><span class="mn" id="MathJax-Span-10" style="font-family: MathJax_Main;">15.625</span><span class="mi" id="MathJax-Span-11" style="font-family: MathJax_Math; font-style: italic;">k</span><span class="mi" id="MathJax-Span-12" style="font-family: MathJax_Math; font-style: italic;">H<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.057em;"></span></span><span class="mi" id="MathJax-Span-13" style="font-family: MathJax_Math; font-style: italic;">z<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.003em;"></span></span></span><span style="display: inline-block; width: 0px; height: 4.022em;"></span></span><span style="position: absolute; clip: rect(0.825em, 1004.78em, 1.261em, -1000em); top: -1.3em; left: 0em;"><span style="display: inline-block; overflow: hidden; vertical-align: 0em; border-top: 1.3px solid; width: 4.775em; height: 0px;"></span><span style="display: inline-block; width: 0px; height: 1.08em;"></span></span></span></span><span class="mo" id="MathJax-Span-14" style="font-family: MathJax_Main; padding-left: 0.278em;">=</span><span class="mn" id="MathJax-Span-15" style="font-family: MathJax_Main; padding-left: 0.278em;">1024</span></span><span style="display: inline-block; width: 0px; height: 2.281em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.914em; border-left: 0px solid; width: 0px; height: 2.616em;"></span></span></nobr><span class="MJX_Assistive_MathML MJX_Assistive_MathML_Block" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mfrac><mrow><mn>16</mn><mi>M</mi><mi>h</mi><mi>z</mi></mrow><mrow><mn>15.625</mn><mi>k</mi><mi>H</mi><mi>z</mi></mrow></mfrac><mo>=</mo><mn>1024</mn></math></span></span></div><script type="math/tex; mode=display" id="MathJax-Element-1"> \frac{16Mhz} {15.625kHz} =1024 </script></div>
+<p>As for the active pixels, from the timing diagram a full scan-line is 64µs in duration
+and looking at line 24 for example, either side of the active “grey” region, there’s the h-sync,
+back porch and front-porch. Converting those durations to pixels gives:</p>
+<div><span class="MathJax_Preview" style="color: inherit; display: none;"></span><div class="MathJax_Display" style="text-align: center;"><span class="MathJax" id="MathJax-Element-2-Frame" tabindex="0" style="text-align: center; position: relative;" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot;&gt;&lt;mrow class=&quot;MJX-TeXAtom-ORD&quot;&gt;&lt;mi&gt;h&lt;/mi&gt;&lt;mi&gt;s&lt;/mi&gt;&lt;mi&gt;y&lt;/mi&gt;&lt;mi&gt;n&lt;/mi&gt;&lt;mi&gt;c&lt;/mi&gt;&lt;/mrow&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mfrac&gt;&lt;mn&gt;1024&lt;/mn&gt;&lt;mrow&gt;&lt;mn&gt;64&lt;/mn&gt;&lt;mi&gt;u&lt;/mi&gt;&lt;mi&gt;s&lt;/mi&gt;&lt;/mrow&gt;&lt;/mfrac&gt;&lt;mo&gt;&amp;#x00D7;&lt;/mo&gt;&lt;mn&gt;4.7&lt;/mn&gt;&lt;mi&gt;u&lt;/mi&gt;&lt;mi&gt;s&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mn&gt;75.2&lt;/mn&gt;&lt;mi&gt;p&lt;/mi&gt;&lt;mi&gt;i&lt;/mi&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mi&gt;e&lt;/mi&gt;&lt;mi&gt;l&lt;/mi&gt;&lt;mi&gt;s&lt;/mi&gt;&lt;/math&gt;" role="presentation"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-16" style="width: 18.61em; display: inline-block;"><span style="display: inline-block; position: relative; width: 15.606em; height: 0px; font-size: 119%;"><span style="position: absolute; clip: rect(0.747em, 1015.56em, 3.169em, -1000em); top: -2.281em; left: 0em;"><span class="mrow" id="MathJax-Span-17"><span class="texatom" id="MathJax-Span-18"><span class="mrow" id="MathJax-Span-19"><span class="mi" id="MathJax-Span-20" style="font-family: MathJax_Math; font-style: italic;">h</span><span class="mi" id="MathJax-Span-21" style="font-family: MathJax_Math; font-style: italic;">s</span><span class="mi" id="MathJax-Span-22" style="font-family: MathJax_Math; font-style: italic;">y<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.006em;"></span></span><span class="mi" id="MathJax-Span-23" style="font-family: MathJax_Math; font-style: italic;">n</span><span class="mi" id="MathJax-Span-24" style="font-family: MathJax_Math; font-style: italic;">c</span></span></span><span class="mo" id="MathJax-Span-25" style="font-family: MathJax_Main; padding-left: 0.278em;">=</span><span class="mfrac" id="MathJax-Span-26" style="padding-left: 0.278em;"><span style="display: inline-block; position: relative; width: 2.161em; height: 0px; margin-right: 0.12em; margin-left: 0.12em;"><span style="position: absolute; clip: rect(3.165em, 1001.97em, 4.224em, -1000em); top: -4.698em; left: 50%; margin-left: -1em;"><span class="mn" id="MathJax-Span-27" style="font-family: MathJax_Main;">1024</span><span style="display: inline-block; width: 0px; height: 4.022em;"></span></span><span style="position: absolute; clip: rect(3.165em, 1001.99em, 4.224em, -1000em); top: -3.336em; left: 50%; margin-left: -1.02em;"><span class="mrow" id="MathJax-Span-28"><span class="mn" id="MathJax-Span-29" style="font-family: MathJax_Main;">64</span><span class="mi" id="MathJax-Span-30" style="font-family: MathJax_Math; font-style: italic;">u</span><span class="mi" id="MathJax-Span-31" style="font-family: MathJax_Math; font-style: italic;">s</span></span><span style="display: inline-block; width: 0px; height: 4.022em;"></span></span><span style="position: absolute; clip: rect(0.825em, 1002.16em, 1.261em, -1000em); top: -1.3em; left: 0em;"><span style="display: inline-block; overflow: hidden; vertical-align: 0em; border-top: 1.3px solid; width: 2.161em; height: 0px;"></span><span style="display: inline-block; width: 0px; height: 1.08em;"></span></span></span></span><span class="mo" id="MathJax-Span-32" style="font-family: MathJax_Main; padding-left: 0.222em;">×</span><span class="mn" id="MathJax-Span-33" style="font-family: MathJax_Main; padding-left: 0.222em;">4.7</span><span class="mi" id="MathJax-Span-34" style="font-family: MathJax_Math; font-style: italic;">u</span><span class="mi" id="MathJax-Span-35" style="font-family: MathJax_Math; font-style: italic;">s</span><span class="mo" id="MathJax-Span-36" style="font-family: MathJax_Main; padding-left: 0.278em;">=</span><span class="mn" id="MathJax-Span-37" style="font-family: MathJax_Main; padding-left: 0.278em;">75.2</span><span class="mi" id="MathJax-Span-38" style="font-family: MathJax_Math; font-style: italic;">p</span><span class="mi" id="MathJax-Span-39" style="font-family: MathJax_Math; font-style: italic;">i</span><span class="mi" id="MathJax-Span-40" style="font-family: MathJax_Math; font-style: italic;">x</span><span class="mi" id="MathJax-Span-41" style="font-family: MathJax_Math; font-style: italic;">e</span><span class="mi" id="MathJax-Span-42" style="font-family: MathJax_Math; font-style: italic;">l</span><span class="mi" id="MathJax-Span-43" style="font-family: MathJax_Math; font-style: italic;">s</span></span><span style="display: inline-block; width: 0px; height: 2.281em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.914em; border-left: 0px solid; width: 0px; height: 2.596em;"></span></span></nobr><span class="MJX_Assistive_MathML MJX_Assistive_MathML_Block" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow class="MJX-TeXAtom-ORD"><mi>h</mi><mi>s</mi><mi>y</mi><mi>n</mi><mi>c</mi></mrow><mo>=</mo><mfrac><mn>1024</mn><mrow><mn>64</mn><mi>u</mi><mi>s</mi></mrow></mfrac><mo>×</mo><mn>4.7</mn><mi>u</mi><mi>s</mi><mo>=</mo><mn>75.2</mn><mi>p</mi><mi>i</mi><mi>x</mi><mi>e</mi><mi>l</mi><mi>s</mi></math></span></span></div><script type="math/tex; mode=display" id="MathJax-Element-2"> {hsync}=\frac{1024} {64us} \times 4.7us =75.2pixels </script></div>
+<div><span class="MathJax_Preview" style="color: inherit; display: none;"></span><div class="MathJax_Display" style="text-align: center;"><span class="MathJax" id="MathJax-Element-3-Frame" tabindex="0" style="text-align: center; position: relative;" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot;&gt;&lt;mrow class=&quot;MJX-TeXAtom-ORD&quot;&gt;&lt;mi&gt;b&lt;/mi&gt;&lt;mi&gt;a&lt;/mi&gt;&lt;mi&gt;c&lt;/mi&gt;&lt;mi&gt;k&lt;/mi&gt;&lt;mspace width=&quot;thinmathspace&quot; /&gt;&lt;mi&gt;p&lt;/mi&gt;&lt;mi&gt;o&lt;/mi&gt;&lt;mi&gt;r&lt;/mi&gt;&lt;mi&gt;c&lt;/mi&gt;&lt;mi&gt;h&lt;/mi&gt;&lt;/mrow&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mfrac&gt;&lt;mn&gt;1024&lt;/mn&gt;&lt;mrow&gt;&lt;mn&gt;64&lt;/mn&gt;&lt;mi&gt;u&lt;/mi&gt;&lt;mi&gt;s&lt;/mi&gt;&lt;/mrow&gt;&lt;/mfrac&gt;&lt;mo&gt;&amp;#x00D7;&lt;/mo&gt;&lt;mn&gt;5.7&lt;/mn&gt;&lt;mi&gt;u&lt;/mi&gt;&lt;mi&gt;s&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mn&gt;91.2&lt;/mn&gt;&lt;mi&gt;p&lt;/mi&gt;&lt;mi&gt;i&lt;/mi&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mi&gt;e&lt;/mi&gt;&lt;mi&gt;l&lt;/mi&gt;&lt;mi&gt;s&lt;/mi&gt;&lt;/math&gt;" role="presentation"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-44" style="width: 20.951em; display: inline-block;"><span style="display: inline-block; position: relative; width: 17.587em; height: 0px; font-size: 119%;"><span style="position: absolute; clip: rect(0.747em, 1017.54em, 3.169em, -1000em); top: -2.281em; left: 0em;"><span class="mrow" id="MathJax-Span-45"><span class="texatom" id="MathJax-Span-46"><span class="mrow" id="MathJax-Span-47"><span class="mi" id="MathJax-Span-48" style="font-family: MathJax_Math; font-style: italic;">b</span><span class="mi" id="MathJax-Span-49" style="font-family: MathJax_Math; font-style: italic;">a</span><span class="mi" id="MathJax-Span-50" style="font-family: MathJax_Math; font-style: italic;">c</span><span class="mi" id="MathJax-Span-51" style="font-family: MathJax_Math; font-style: italic;">k</span><span class="mspace" id="MathJax-Span-52" style="height: 0em; vertical-align: 0em; width: 0.167em; display: inline-block; overflow: hidden;"></span><span class="mi" id="MathJax-Span-53" style="font-family: MathJax_Math; font-style: italic;">p</span><span class="mi" id="MathJax-Span-54" style="font-family: MathJax_Math; font-style: italic;">o</span><span class="mi" id="MathJax-Span-55" style="font-family: MathJax_Math; font-style: italic;">r</span><span class="mi" id="MathJax-Span-56" style="font-family: MathJax_Math; font-style: italic;">c</span><span class="mi" id="MathJax-Span-57" style="font-family: MathJax_Math; font-style: italic;">h</span></span></span><span class="mo" id="MathJax-Span-58" style="font-family: MathJax_Main; padding-left: 0.278em;">=</span><span class="mfrac" id="MathJax-Span-59" style="padding-left: 0.278em;"><span style="display: inline-block; position: relative; width: 2.161em; height: 0px; margin-right: 0.12em; margin-left: 0.12em;"><span style="position: absolute; clip: rect(3.165em, 1001.97em, 4.224em, -1000em); top: -4.698em; left: 50%; margin-left: -1em;"><span class="mn" id="MathJax-Span-60" style="font-family: MathJax_Main;">1024</span><span style="display: inline-block; width: 0px; height: 4.022em;"></span></span><span style="position: absolute; clip: rect(3.165em, 1001.99em, 4.224em, -1000em); top: -3.336em; left: 50%; margin-left: -1.02em;"><span class="mrow" id="MathJax-Span-61"><span class="mn" id="MathJax-Span-62" style="font-family: MathJax_Main;">64</span><span class="mi" id="MathJax-Span-63" style="font-family: MathJax_Math; font-style: italic;">u</span><span class="mi" id="MathJax-Span-64" style="font-family: MathJax_Math; font-style: italic;">s</span></span><span style="display: inline-block; width: 0px; height: 4.022em;"></span></span><span style="position: absolute; clip: rect(0.825em, 1002.16em, 1.261em, -1000em); top: -1.3em; left: 0em;"><span style="display: inline-block; overflow: hidden; vertical-align: 0em; border-top: 1.3px solid; width: 2.161em; height: 0px;"></span><span style="display: inline-block; width: 0px; height: 1.08em;"></span></span></span></span><span class="mo" id="MathJax-Span-65" style="font-family: MathJax_Main; padding-left: 0.222em;">×</span><span class="mn" id="MathJax-Span-66" style="font-family: MathJax_Main; padding-left: 0.222em;">5.7</span><span class="mi" id="MathJax-Span-67" style="font-family: MathJax_Math; font-style: italic;">u</span><span class="mi" id="MathJax-Span-68" style="font-family: MathJax_Math; font-style: italic;">s</span><span class="mo" id="MathJax-Span-69" style="font-family: MathJax_Main; padding-left: 0.278em;">=</span><span class="mn" id="MathJax-Span-70" style="font-family: MathJax_Main; padding-left: 0.278em;">91.2</span><span class="mi" id="MathJax-Span-71" style="font-family: MathJax_Math; font-style: italic;">p</span><span class="mi" id="MathJax-Span-72" style="font-family: MathJax_Math; font-style: italic;">i</span><span class="mi" id="MathJax-Span-73" style="font-family: MathJax_Math; font-style: italic;">x</span><span class="mi" id="MathJax-Span-74" style="font-family: MathJax_Math; font-style: italic;">e</span><span class="mi" id="MathJax-Span-75" style="font-family: MathJax_Math; font-style: italic;">l</span><span class="mi" id="MathJax-Span-76" style="font-family: MathJax_Math; font-style: italic;">s</span></span><span style="display: inline-block; width: 0px; height: 2.281em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.914em; border-left: 0px solid; width: 0px; height: 2.596em;"></span></span></nobr><span class="MJX_Assistive_MathML MJX_Assistive_MathML_Block" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow class="MJX-TeXAtom-ORD"><mi>b</mi><mi>a</mi><mi>c</mi><mi>k</mi><mspace width="thinmathspace"></mspace><mi>p</mi><mi>o</mi><mi>r</mi><mi>c</mi><mi>h</mi></mrow><mo>=</mo><mfrac><mn>1024</mn><mrow><mn>64</mn><mi>u</mi><mi>s</mi></mrow></mfrac><mo>×</mo><mn>5.7</mn><mi>u</mi><mi>s</mi><mo>=</mo><mn>91.2</mn><mi>p</mi><mi>i</mi><mi>x</mi><mi>e</mi><mi>l</mi><mi>s</mi></math></span></span></div><script type="math/tex; mode=display" id="MathJax-Element-3"> {back\,porch}=\frac{1024} {64us} \times 5.7us =91.2pixels </script></div>
+<div><span class="MathJax_Preview" style="color: inherit; display: none;"></span><div class="MathJax_Display" style="text-align: center;"><span class="MathJax" id="MathJax-Element-4-Frame" tabindex="0" style="text-align: center; position: relative;" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot;&gt;&lt;mrow class=&quot;MJX-TeXAtom-ORD&quot;&gt;&lt;mi&gt;f&lt;/mi&gt;&lt;mi&gt;r&lt;/mi&gt;&lt;mi&gt;o&lt;/mi&gt;&lt;mi&gt;n&lt;/mi&gt;&lt;mi&gt;t&lt;/mi&gt;&lt;mspace width=&quot;thinmathspace&quot; /&gt;&lt;mi&gt;p&lt;/mi&gt;&lt;mi&gt;o&lt;/mi&gt;&lt;mi&gt;r&lt;/mi&gt;&lt;mi&gt;c&lt;/mi&gt;&lt;mi&gt;h&lt;/mi&gt;&lt;/mrow&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mfrac&gt;&lt;mn&gt;1024&lt;/mn&gt;&lt;mrow&gt;&lt;mn&gt;64&lt;/mn&gt;&lt;mi&gt;u&lt;/mi&gt;&lt;mi&gt;s&lt;/mi&gt;&lt;/mrow&gt;&lt;/mfrac&gt;&lt;mo&gt;&amp;#x00D7;&lt;/mo&gt;&lt;mn&gt;1.65&lt;/mn&gt;&lt;mi&gt;u&lt;/mi&gt;&lt;mi&gt;s&lt;/mi&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mn&gt;26.4&lt;/mn&gt;&lt;mi&gt;p&lt;/mi&gt;&lt;mi&gt;i&lt;/mi&gt;&lt;mi&gt;x&lt;/mi&gt;&lt;mi&gt;e&lt;/mi&gt;&lt;mi&gt;l&lt;/mi&gt;&lt;mi&gt;s&lt;/mi&gt;&lt;/math&gt;" role="presentation"><nobr aria-hidden="true"><span class="math" id="MathJax-Span-77" style="width: 22.152em; display: inline-block;"><span style="display: inline-block; position: relative; width: 18.607em; height: 0px; font-size: 119%;"><span style="position: absolute; clip: rect(0.747em, 1018.56em, 3.169em, -1000em); top: -2.281em; left: 0em;"><span class="mrow" id="MathJax-Span-78"><span class="texatom" id="MathJax-Span-79"><span class="mrow" id="MathJax-Span-80"><span class="mi" id="MathJax-Span-81" style="font-family: MathJax_Math; font-style: italic;">f<span style="display: inline-block; overflow: hidden; height: 1px; width: 0.06em;"></span></span><span class="mi" id="MathJax-Span-82" style="font-family: MathJax_Math; font-style: italic;">r</span><span class="mi" id="MathJax-Span-83" style="font-family: MathJax_Math; font-style: italic;">o</span><span class="mi" id="MathJax-Span-84" style="font-family: MathJax_Math; font-style: italic;">n</span><span class="mi" id="MathJax-Span-85" style="font-family: MathJax_Math; font-style: italic;">t</span><span class="mspace" id="MathJax-Span-86" style="height: 0em; vertical-align: 0em; width: 0.167em; display: inline-block; overflow: hidden;"></span><span class="mi" id="MathJax-Span-87" style="font-family: MathJax_Math; font-style: italic;">p</span><span class="mi" id="MathJax-Span-88" style="font-family: MathJax_Math; font-style: italic;">o</span><span class="mi" id="MathJax-Span-89" style="font-family: MathJax_Math; font-style: italic;">r</span><span class="mi" id="MathJax-Span-90" style="font-family: MathJax_Math; font-style: italic;">c</span><span class="mi" id="MathJax-Span-91" style="font-family: MathJax_Math; font-style: italic;">h</span></span></span><span class="mo" id="MathJax-Span-92" style="font-family: MathJax_Main; padding-left: 0.278em;">=</span><span class="mfrac" id="MathJax-Span-93" style="padding-left: 0.278em;"><span style="display: inline-block; position: relative; width: 2.161em; height: 0px; margin-right: 0.12em; margin-left: 0.12em;"><span style="position: absolute; clip: rect(3.165em, 1001.97em, 4.224em, -1000em); top: -4.698em; left: 50%; margin-left: -1em;"><span class="mn" id="MathJax-Span-94" style="font-family: MathJax_Main;">1024</span><span style="display: inline-block; width: 0px; height: 4.022em;"></span></span><span style="position: absolute; clip: rect(3.165em, 1001.99em, 4.224em, -1000em); top: -3.336em; left: 50%; margin-left: -1.02em;"><span class="mrow" id="MathJax-Span-95"><span class="mn" id="MathJax-Span-96" style="font-family: MathJax_Main;">64</span><span class="mi" id="MathJax-Span-97" style="font-family: MathJax_Math; font-style: italic;">u</span><span class="mi" id="MathJax-Span-98" style="font-family: MathJax_Math; font-style: italic;">s</span></span><span style="display: inline-block; width: 0px; height: 4.022em;"></span></span><span style="position: absolute; clip: rect(0.825em, 1002.16em, 1.261em, -1000em); top: -1.3em; left: 0em;"><span style="display: inline-block; overflow: hidden; vertical-align: 0em; border-top: 1.3px solid; width: 2.161em; height: 0px;"></span><span style="display: inline-block; width: 0px; height: 1.08em;"></span></span></span></span><span class="mo" id="MathJax-Span-99" style="font-family: MathJax_Main; padding-left: 0.222em;">×</span><span class="mn" id="MathJax-Span-100" style="font-family: MathJax_Main; padding-left: 0.222em;">1.65</span><span class="mi" id="MathJax-Span-101" style="font-family: MathJax_Math; font-style: italic;">u</span><span class="mi" id="MathJax-Span-102" style="font-family: MathJax_Math; font-style: italic;">s</span><span class="mo" id="MathJax-Span-103" style="font-family: MathJax_Main; padding-left: 0.278em;">=</span><span class="mn" id="MathJax-Span-104" style="font-family: MathJax_Main; padding-left: 0.278em;">26.4</span><span class="mi" id="MathJax-Span-105" style="font-family: MathJax_Math; font-style: italic;">p</span><span class="mi" id="MathJax-Span-106" style="font-family: MathJax_Math; font-style: italic;">i</span><span class="mi" id="MathJax-Span-107" style="font-family: MathJax_Math; font-style: italic;">x</span><span class="mi" id="MathJax-Span-108" style="font-family: MathJax_Math; font-style: italic;">e</span><span class="mi" id="MathJax-Span-109" style="font-family: MathJax_Math; font-style: italic;">l</span><span class="mi" id="MathJax-Span-110" style="font-family: MathJax_Math; font-style: italic;">s</span></span><span style="display: inline-block; width: 0px; height: 2.281em;"></span></span></span><span style="display: inline-block; overflow: hidden; vertical-align: -0.914em; border-left: 0px solid; width: 0px; height: 2.596em;"></span></span></nobr><span class="MJX_Assistive_MathML MJX_Assistive_MathML_Block" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow class="MJX-TeXAtom-ORD"><mi>f</mi><mi>r</mi><mi>o</mi><mi>n</mi><mi>t</mi><mspace width="thinmathspace"></mspace><mi>p</mi><mi>o</mi><mi>r</mi><mi>c</mi><mi>h</mi></mrow><mo>=</mo><mfrac><mn>1024</mn><mrow><mn>64</mn><mi>u</mi><mi>s</mi></mrow></mfrac><mo>×</mo><mn>1.65</mn><mi>u</mi><mi>s</mi><mo>=</mo><mn>26.4</mn><mi>p</mi><mi>i</mi><mi>x</mi><mi>e</mi><mi>l</mi><mi>s</mi></math></span></span></div><script type="math/tex; mode=display" id="MathJax-Element-4"> {front\,porch}=\frac{1024} {64us} \times 1.65us =26.4pixels </script></div>
+<p>Rounding these of to 75, 91 and 26 pixels gives a sync duration of 192 pixels. With 1024 total
+pixels that means 832 active pixels. The Electron will only use 640 of those with a border either side.</p>
+<p>syncp_h is the horizontal count in pixels for the front porch pulse, in this case 26 pixels. syncw_h is the h-sync
+duration in pixels, 75. The back porch is the remainder.</p>
+<p>The last three entries are used to adjust the sync polarity and provide feedback to other parts of the framework
+on whether the setup is for progressive or interlaced.</p>
+<p>The remaining entries are used to specify the different vertical line regions, where each field
+starts and ends and which lines are used for vsync. f1 (field 1), f2 (field 2), _v for
+vertical. prefix of f for first and l for last. Therefor fline_f1_v is the first visible line of field 1.</p>
+<p>Lines 6 to 23.5 are used for blanking and do not carrying visible data. The first line with active data
+is line 23, however the values in the structure above are specified as “the end of the previous line”.
+i.e the first visible line of field 1 starts after the end of line 22.</p>
+<p>As this is using non-interlaced, field 2 values are not needed. Also note that the field one sync begins where field 2 would
+have started (due to repeating the field), this would be after the end of line 312 but due to extending the 1/2 broad
+pulse on line 313 to a full broad, this moves the sync start to end of line 313. However, visible line 310 is
+dropped from each frame to prevent the overall line count exceeding the 625 lines of PAL. This brings the fsync
+back to 312.</p>
+<p>With the timing diagram above and comparing figures to the 576i spec it should be reasonably straight forward
+to derive new timing information as needed. The <a href="http://www.batsocks.co.uk/readme/video_timing.htm">Batsocks</a>
+site also has a timing diagram for the <a href="http://www.batsocks.co.uk/img/info_video/Timing_PAL_FrameSignal_Progressive.gif">non-interlaced
+format</a>.</p>
+<h2 id="cs_gate">CS_Gate</h2>
+<p>If you look at the VideoTiming vhd file in the Replay SVN, one part of the VideoTiming
+code I found particularly confusing at first was</p>
+<div class="highlight"><pre style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-vhdl" data-lang="vhdl">cs_gate &lt;= <span style="color:#009c00">"10000"</span>; <span style="color:#f00;font-style:italic">-- normal,n1,n2,b1,b2</span>
+
+<span style="color:#f00;font-style:italic">-- minus one as sampled at h_eol</span>
+<span style="color:#00f">if</span> (standard_ana = PAL) <span style="color:#00f">then</span>
+    <span style="color:#00f">if</span> (v_cnt =   625) <span style="color:#00f">then</span> cs_gate &lt;= <span style="color:#009c00">"00011"</span>; <span style="color:#00f">end</span> <span style="color:#00f">if</span>;  <span style="color:#f00;font-style:italic">-- actually line 1</span>
+    <span style="color:#00f">if</span> (v_cnt =   2-1) <span style="color:#00f">then</span> cs_gate &lt;= <span style="color:#009c00">"00011"</span>; <span style="color:#00f">end</span> <span style="color:#00f">if</span>;
+    <span style="color:#00f">if</span> (v_cnt =   3-1) <span style="color:#00f">then</span> cs_gate &lt;= <span style="color:#009c00">"00110"</span>; <span style="color:#00f">end</span> <span style="color:#00f">if</span>;
+    <span style="color:#00f">if</span> (v_cnt =   4-1) <span style="color:#00f">then</span> cs_gate &lt;= <span style="color:#009c00">"01100"</span>; <span style="color:#00f">end</span> <span style="color:#00f">if</span>;
+    <span style="color:#00f">if</span> (v_cnt =   5-1) <span style="color:#00f">then</span> cs_gate &lt;= <span style="color:#009c00">"01100"</span>; <span style="color:#00f">end</span> <span style="color:#00f">if</span>;
+
+    <span style="color:#00f">if</span> (v_cnt = 311-1) <span style="color:#00f">then</span> cs_gate &lt;= <span style="color:#009c00">"01100"</span>; <span style="color:#00f">end</span> <span style="color:#00f">if</span>;
+    <span style="color:#00f">if</span> (v_cnt = 312-1) <span style="color:#00f">then</span> cs_gate &lt;= <span style="color:#009c00">"01100"</span>; <span style="color:#00f">end</span> <span style="color:#00f">if</span>;
+
+    <span style="color:#00f">if</span> (v_cnt = 313-1) <span style="color:#00f">then</span> cs_gate &lt;= <span style="color:#009c00">"01001"</span>; <span style="color:#00f">end</span> <span style="color:#00f">if</span>;
+    <span style="color:#00f">if</span> (v_cnt = 314-1) <span style="color:#00f">then</span> cs_gate &lt;= <span style="color:#009c00">"00011"</span>; <span style="color:#00f">end</span> <span style="color:#00f">if</span>;
+    <span style="color:#00f">if</span> (v_cnt = 315-1) <span style="color:#00f">then</span> cs_gate &lt;= <span style="color:#009c00">"00011"</span>; <span style="color:#00f">end</span> <span style="color:#00f">if</span>;
+    ...
+</code></pre></div><p>It was not at all clear to me what cs_gate did or what the “normal,n1,n2,b1,b2”
+bits represented.</p>
+<p>Eventually I realized the bit sequences correspond to the normal, short and long
+pulses of the above timing diagram and it was this section of code that needed
+modifying to support a non-interlaced mode (PAL_P)</p>
+<p>For example line one of the timing image (the green part) has two “broad” pulses, one in the middle of the scan-line
+and one at the end. These are indicated by b1 and b2. Line 5 shows two short (nibble) pulses
+one at the start of the scan-line and one in the middle, this is n1 and n2. Finally
+line 51 shows a full visible line which is the “normal” bit.</p>
+<p>The 5 cs_gate bits are hence the first and second half of the scan-line and
+whether that pulse should be normal, short or broad. Where b1 is a broad pulse
+in the first half of the scan-line and b2 the second half. Normal represents
+a first half normal signal pulse or a full line if n2 and b2 are not set E.G</p>
+<ul>
+<li>Line 1 is “00011” or two broad pulses.</li>
+<li>Line 3 is “00110” or one broad pulse b1 and one short pulse n2.</li>
+<li>Line 4 is “01100” or two short pulses.</li>
+</ul>
+<figure><img src="non-interlaced-pal-video_files/20170715-scope-csync.png" alt="PAL CSync Signal"><figcaption>
+            <p>PAL CSync Signal</p>
+        </figcaption>
+</figure>
+
+<p>The above oscilloscope trace shows four signals, of relevance is the cyan a_cs line which
+is the analog CSync output. The trace was taken during an active VSync period covered
+by lines 311 to 318.5 in the original timing diagram, although lines 311 and 312 are off
+the screen to the left and lines 317+ are cut off to the right.</p>
+<p>The initial long high pulse is the last bit of the first half of line 313 followed
+by going low for the second half of line 313 ending with a broad pulse. A total of
+5 broad pulses occur which is the green field 2 start pulse section.</p>
+<p>After the last broad pulse, there’s two short pulses which is line 316, the first of
+which follows very shortly after the last broad pulse of line 315.</p>
+<p>In terms of cs_gate, line 313 is “01001”, a short pulse followed by a board pulse
+So for the non-interlaced mode this is switched to “01100”, two short pulses with
+the green broad pulses now starting on line 314+.</p>
+<h2 id="csync">CSync</h2>
+<p>A couple of quirks remain to be solved.</p>
+<p>The Electron outputs RGB with CSync via one connector and the other is plain old
+composite which includes, well, everything in a single signal/wire.</p>
+<p>The core is currently outputting using CSync with the connection to the
+TV using Scart and 15.625kHz horizontal frequency as required by PAL.</p>
+<p>CSync (composite sync) is a way to provide both H and V Sync on a single wire.
+A <a href="https://en.wikipedia.org/wiki/Component_video_sync">few other methods</a>
+exist too.</p>
+<p>In order to support monitor connections via VGA/DVI/HDMI separate H and V sync are
+needed as well as a horizontal frequency &gt; 31kHz (although a few monitors do
+support 15.625kHz, most do not). A scan-line doubler will be needed to accomplish
+this as well as config options to switch between separate sync or csync.</p>
+<p>With PAL working, I now have a way to provide a little debug output from the
+ULA by changing screen borders or the main fill colour. Not as flexible
+as using the simulator or chipscope, but useful in a pinch.</p>
+<p>There’s quite a bit of detail I’ve skipped discussing in this post regarding
+the Electron’s graphics modes and how the ULA needs to pause the CPU in
+some modes, that’s for a future post. In the next blog post I’ll provide an overview of the Electrons
+hardware, specifically RAM, ROM and CPU.</p>
+    </div>
+
+    <footer>
+        
+
+
+
+
+   
+   <hr>
+   <p><a href="" id="series"></a>This post is part of the <b>Acorn Electron FPGA Project</b> series.</p>
+
+   
+
+   <ul class="series">
+   
+         <li>
+            Jul 14, 2017 -
+            
+               <a href="https://www.mups.co.uk/project/hardware/acorn_electron/">Acorn Electron Core</a>
+            
+         </li>
+   
+         <li>
+            Jul 15, 2017 -
+            
+               <a href="https://www.mups.co.uk/post/2017/07/acorn-electron-fpga-project/">Acorn Electron FPGA Project</a>
+            
+         </li>
+   
+         <li>
+            Jul 22, 2017 -
+            
+               Non-Interlaced PAL Video
+            
+         </li>
+   
+         <li>
+            Aug 01, 2017 -
+            
+               <a href="https://www.mups.co.uk/post/2017/08/memory-pixel-clocks-and-snow/">Memory, Pixel Clocks and Snow</a>
+            
+         </li>
+   
+         <li>
+            Aug 10, 2017 -
+            
+               <a href="https://www.mups.co.uk/post/2017/08/acorn-electron-gremlins/">Acorn Electron Gremlins</a>
+            
+         </li>
+   
+         <li>
+            Sep 04, 2017 -
+            
+               <a href="https://www.mups.co.uk/post/2017/09/acorn-electron-mode-6/">Acorn Electron Mode 6</a>
+            
+         </li>
+   
+         <li>
+            Sep 21, 2017 -
+            
+               <a href="https://www.mups.co.uk/post/2017/09/keyboard-and-cpu-clock-transitions/">Keyboard and CPU Clock Transitions</a>
+            
+         </li>
+   
+         <li>
+            Oct 01, 2017 -
+            
+               <a href="https://www.mups.co.uk/post/2017/10/pixels-and-palettes/">Pixels and Palettes</a>
+            
+         </li>
+   
+         <li>
+            Oct 19, 2017 -
+            
+               <a href="https://www.mups.co.uk/post/2017/10/cassette-interface-mostly-harmless/">Cassette Interface - Mostly Harmless</a>
+            
+         </li>
+   
+         <li>
+            Nov 08, 2017 -
+            
+               <a href="https://www.mups.co.uk/post/2017/11/not-quite-the-sound-of-the-80s/">Not quite the sound of the 80's</a>
+            
+         </li>
+   
+         <li>
+            Nov 17, 2017 -
+            
+               <a href="https://www.mups.co.uk/post/2017/11/its-music-jim-but-not-as-we-know-it/">It's music jim, but not as we know it</a>
+            
+         </li>
+   
+         <li>
+            Nov 29, 2017 -
+            
+               <a href="https://www.mups.co.uk/post/2017/11/a-sound-improvement/">A sound improvement</a>
+            
+         </li>
+   
+         <li>
+            Jan 18, 2018 -
+            
+               <a href="https://www.mups.co.uk/post/2018/01/electron-pal-video-revisited/">Electron PAL Video Revisited</a>
+            
+         </li>
+   
+   </ul>
+
+
+    </footer>
+
+</article>
+
+            </div>
+
+    </main>
+
+    <aside id="page-sidebar">
+
+    <section class="page-item padded">
+        <h2>Recent Posts</h2>
+        
+            <div class="post">
+                <div class="post-info">
+                    
+
+
+
+
+    
+    
+    
+
+    
+    
+    <div class="banner">
+        <a href="https://www.mups.co.uk/post/2023/05/narrowband/">
+            <figure style="background-image: url(https://www.mups.co.uk/images/blog/2023/20210716-M27_nb-thumb.png);">
+            </figure>
+        </a>
+        
+    </div>
+
+
+
+                    <div class="title"><a href="https://www.mups.co.uk/post/2023/05/narrowband/">Narrowband</a></div>
+
+                    <div class="meta">
+                       
+
+
+
+
+
+
+
+<time class="published" datetime="2023-05-22T23:23:12+01:00">
+    <span class="glyphicon glyphicon-calendar"></span>
+    Mon, May 22, 2023
+</time>
+                    </div>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <div class="post-info">
+                    
+
+
+
+
+    
+    
+    
+
+    
+    
+    <div class="banner">
+        <a href="https://www.mups.co.uk/post/2020/07/fixing-the-driver-board/">
+            <figure style="background-image: url(https://www.mups.co.uk/images/blog/2020/banner-wpc.jpg);">
+            </figure>
+        </a>
+        
+    </div>
+
+
+
+                    <div class="title"><a href="https://www.mups.co.uk/post/2020/07/fixing-the-driver-board/">Fixing the driver board</a></div>
+
+                    <div class="meta">
+                       
+
+
+
+
+
+
+
+<time class="published" datetime="2020-07-18T13:13:20+01:00">
+    <span class="glyphicon glyphicon-calendar"></span>
+    Sat, Jul 18, 2020
+</time>
+                    </div>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <div class="post-info">
+                    
+
+
+
+
+    
+    
+    
+
+    
+    
+    <div class="banner">
+        <a href="https://www.mups.co.uk/post/2020/06/before-you-can-build-the-machine-youve-first-to-repair-it/">
+            <figure style="background-image: url(https://www.mups.co.uk/images/blog/3rdparty/misc/banner-pinball.jpg);">
+            </figure>
+        </a>
+        
+            <figcaption class="banner-attribution">
+                <a href="https://www.flickr.com/photos/19047782@N00/25355865208">'Pinball Prisma' by planeta CC BY-SA 2.0</a>
+            </figcaption>
+        
+    </div>
+
+
+
+                    <div class="title"><a href="https://www.mups.co.uk/post/2020/06/before-you-can-build-the-machine-youve-first-to-repair-it/">Before you can build the machine, you've first to repair it</a></div>
+
+                    <div class="meta">
+                       
+
+
+
+
+
+
+
+<time class="published" datetime="2020-06-17T10:16:27+01:00">
+    <span class="glyphicon glyphicon-calendar"></span>
+    Wed, Jun 17, 2020
+</time>
+                    </div>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <div class="post-info">
+                    
+
+
+
+
+    
+    
+    
+
+    
+    
+    <div class="banner">
+        <a href="https://www.mups.co.uk/post/2018/08/seamless-gpu-pass-through-on-linux/">
+            <figure style="background-image: url(https://www.mups.co.uk/images/blog/3rdparty/misc/banner-amd.jpg);">
+            </figure>
+        </a>
+        
+            <figcaption class="banner-attribution">
+                <a href="http://amd.com/">AMD RX580</a>
+            </figcaption>
+        
+    </div>
+
+
+
+                    <div class="title"><a href="https://www.mups.co.uk/post/2018/08/seamless-gpu-pass-through-on-linux/">Seamless GPU Pass-through on Linux</a></div>
+
+                    <div class="meta">
+                       
+
+
+
+
+
+
+
+<time class="published" datetime="2018-08-19T11:25:32+01:00">
+    <span class="glyphicon glyphicon-calendar"></span>
+    Sun, Aug 19, 2018
+</time>
+                    </div>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <div class="post-info">
+                    
+
+
+
+
+    
+    
+    
+
+    
+    
+    <div class="banner">
+        <a href="https://www.mups.co.uk/post/2018/01/electron-pal-video-revisited/">
+            <figure style="background-image: url(https://www.mups.co.uk/images/blog/3rdparty/misc/banner-pal-timing.jpg);">
+            </figure>
+        </a>
+        
+            <figcaption class="banner-attribution">
+                <a href="http://www.batsocks.co.uk/readme/video_timing.htm">batsocks</a>
+            </figcaption>
+        
+    </div>
+
+
+
+                    <div class="title"><a href="https://www.mups.co.uk/post/2018/01/electron-pal-video-revisited/">Electron PAL Video Revisited</a></div>
+
+                    <div class="meta">
+                       
+
+
+
+
+
+
+
+<time class="published" datetime="2018-01-18T17:22:32+01:00">
+    <span class="glyphicon glyphicon-calendar"></span>
+    Thu, Jan 18, 2018
+</time>
+                    </div>
+
+                </div>
+            </div>
+        
+    </section>
+
+
+
+    <section class="page-item padded">
+        <h2>Categories</h2>
+        <ul>
+            
+                <li>
+                    <a href="https://www.mups.co.uk/categories/astronomy">Astronomy</a>
+                    <span class="meta">(17)</span>
+                </li>
+            
+                <li>
+                    <a href="https://www.mups.co.uk/categories/games">Games</a>
+                    <span class="meta">(11)</span>
+                </li>
+            
+                <li>
+                    <a href="https://www.mups.co.uk/categories/general">General</a>
+                    <span class="meta">(2)</span>
+                </li>
+            
+                <li>
+                    <a href="https://www.mups.co.uk/categories/hardware">Hardware</a>
+                    <span class="meta">(41)</span>
+                </li>
+            
+                <li>
+                    <a href="https://www.mups.co.uk/categories/software">Software</a>
+                    <span class="meta">(10)</span>
+                </li>
+            
+        </ul>
+    </section>
+
+
+
+
+
+    <section class="page-item padded">
+        <h2>Tags</h2>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/acorn-electron/">acorn electron</a>
+                <span class="meta">
+                    (13)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/astronomy/">astronomy</a>
+                <span class="meta">
+                    (17)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/audio/">audio</a>
+                <span class="meta">
+                    (2)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/c/">c</a>
+                <span class="meta">
+                    (1)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/c++/">c++</a>
+                <span class="meta">
+                    (9)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/custom-engine/">custom engine</a>
+                <span class="meta">
+                    (1)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/debian/">debian</a>
+                <span class="meta">
+                    (2)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/ekos/">ekos</a>
+                <span class="meta">
+                    (2)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/fpga/">fpga</a>
+                <span class="meta">
+                    (18)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/fpgareplay/">fpgareplay</a>
+                <span class="meta">
+                    (19)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/freenas/">freenas</a>
+                <span class="meta">
+                    (1)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/games/">games</a>
+                <span class="meta">
+                    (6)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/gaming/">gaming</a>
+                <span class="meta">
+                    (1)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/gpl/">gpl</a>
+                <span class="meta">
+                    (1)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/guiding/">guiding</a>
+                <span class="meta">
+                    (2)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/hardware/">hardware</a>
+                <span class="meta">
+                    (38)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/indilib/">indilib</a>
+                <span class="meta">
+                    (1)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/ios/">ios</a>
+                <span class="meta">
+                    (1)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/kicad/">kicad</a>
+                <span class="meta">
+                    (1)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/kvm/">kvm</a>
+                <span class="meta">
+                    (1)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/lets-encrypt/">lets encrypt</a>
+                <span class="meta">
+                    (1)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/linux/">linux</a>
+                <span class="meta">
+                    (2)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/lx90/">lx90</a>
+                <span class="meta">
+                    (7)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/messier/">messier</a>
+                <span class="meta">
+                    (4)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/obj-c/">obj c</a>
+                <span class="meta">
+                    (1)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/obj-c++/">obj c++</a>
+                <span class="meta">
+                    (1)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/osx/">osx</a>
+                <span class="meta">
+                    (3)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/pcb/">pcb</a>
+                <span class="meta">
+                    (2)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/piano/">piano</a>
+                <span class="meta">
+                    (2)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/pic/">pic</a>
+                <span class="meta">
+                    (1)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/pinball/">pinball</a>
+                <span class="meta">
+                    (2)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/raspberry-pi/">raspberry pi</a>
+                <span class="meta">
+                    (6)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/software/">software</a>
+                <span class="meta">
+                    (5)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/torque-2d/">torque 2d</a>
+                <span class="meta">
+                    (2)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/torque-game-engine/">torque game engine</a>
+                <span class="meta">
+                    (5)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/umdf/">umdf</a>
+                <span class="meta">
+                    (1)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/vhdl/">vhdl</a>
+                <span class="meta">
+                    (2)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/vscode/">vscode</a>
+                <span class="meta">
+                    (1)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/windows/">windows</a>
+                <span class="meta">
+                    (7)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/xgs/">xgs</a>
+                <span class="meta">
+                    (10)
+                </span>
+            </span>
+        
+            <span class="title">
+                <a href="https://www.mups.co.uk/tags/xilinx/">xilinx</a>
+                <span class="meta">
+                    (4)
+                </span>
+            </span>
+        
+    </section>
+
+
+
+</aside>
+
+
+</div>
+
+</div>
+
+<footer>
+  <div class="page-policy">
+    <div class="container-fluid">
+      <p class="text-muted">
+          <a href="https://www.mups.co.uk/privacypolicy">Cookie and Privacy Policy</a> <br>
+          © 2005-2016 Gary Preston - All Rights Reserved
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script async="" src="non-interlaced-pal-video_files/combined.min.js"></script>
+
+
+<script async="" type="text/javascript" src="non-interlaced-pal-video_files/MathJax.js">
+</script>
+
+
+
+
+
+<div style="position: absolute; width: 0px; height: 0px; overflow: hidden; padding: 0px; border: 0px; margin: 0px;"><div id="MathJax_Font_Test" style="position: absolute; visibility: hidden; top: 0px; left: 0px; width: auto; padding: 0px; border: 0px; margin: 0px; white-space: nowrap; text-align: left; text-indent: 0px; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; font-size: 40px; font-weight: normal; font-style: normal; font-size-adjust: none; font-family: MathJax_Size4, sans-serif;"></div></div></body></html>

@@ -1,0 +1,660 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252"></head><body><h1>PAL video timing specification</h1>
+<p>
+</p><h2>General timing</h2>
+<p>
+Line period 64 us (Micro-seconds)<br>
+Line blanking 12.05 +- 0.25 us<br>
+Line sync 4.7 +- 0.1 us<br>
+Front porch: 1.65 +- 0.1 us<br>
+Burst start 5.6 +- 0.1 us after sync start.<br>
+Burst 10 +- 1 cycles<br>
+</p><p>
+<img src="martin_hinner_pal_files/vdvidsig.gif" alt="Video signal">
+</p><p>
+a = line sync<br>
+b = back porch<br>
+</p><p>
+<img src="martin_hinner_pal_files/videosync.gif">
+</p><p>
+
+
+    
+      
+        </p><p align="justify"><font face="Arial" size="2">There are 
+various Video/Television standards in use. Important ones are
+        CCIR/PAL, EIA/NTSC,  SECAM etc. The major difference between 
+these standards is in the no. of scanning lines and frame frequency.<br>
+        <br>
+        CCIR  standard has 625 lines/frame and 25 frames/sec. EIA standard has 525 lines/frame and 30 frames/sec.</font></p>
+    
+
+<h2>PAL details</h2>
+
+        <p align="justify"><font face="Arial" size="2">1. CCIR/PAL standard  video signal has 625 lines/frame and it repeats @ 25 frames/sec.<br>
+        <br>
+
+        2.	Each frame is split into 2 fields; - each consisting of 312.5
+ lines, called odd and even fields. Thus field rate is 50. i.e. CCIR 
+/PAL std has 50 fields/sec rate .<br>
+        <br>
+        3.	3. Interlacing:   The lines of odd-even field lie alternately
+ . This method of scanning is called interlacing. This interlaced 
+scanning is used to reduce flicker while displaying the image on a 
+monitor.<br>
+        <br>
+        Interlaced scanning  process is shown below.</font></p>
+    
+    
+
+      
+        <p align="center"><font face="Arial" size="2"><img src="martin_hinner_pal_files/An1-1.jpg" border="0" height="210" width="280"></font></p>
+    
+    
+      
+    
+    
+<h2>Synchronization Pulse</h2>
+
+      
+    
+    
+      
+        <p align="justify"><font face="Arial" size="2">Starting of each 
+Horizontal line is marked by a Horizontal sync pulse and the starting of
+ each field by a vertical sync pulse. There are 625 Horizontal sync 
+pulses per frame and 50 vertical sync pulses per second. Vertical sync 
+pulse is a serrated block pulse as shown.</font></p>
+    
+    
+      
+
+        <p align="center"><img src="martin_hinner_pal_files/An1-2.jpg" border="0" height="254" width="500"></p>
+    
+    
+      
+        <p align="justify"><font face="Arial" size="2">Synchronisation 
+pulses ensure that the video image is locked on a video monitor (or VCR 
+etc) vertically and horizontally without any jitter or rolling. If 
+vertical sync is lost, picture may move/tear vertically. If horizontal 
+sync is lost, picture may move/tear horizontally. Synchronisation pulse 
+ensure that all the equipment used in a CCTV set up like VCRs, Monitors,
+ Multiplexers and cameras are locked together. Video information is 
+carried on each line except portions which are in blank periods 
+(Horizontal &amp; Vertical blanking / retrace period).</font></p>
+<h2>Monochrome or Black &amp; White Video Signal</h2>
+
+      <font face="Arial" size="2">For monochrome video signals, video 
+information is basically the intensity or luminance information  (Y 
+signal). 0V represents the black level and 0.7V represents the peak 
+white level . Sync pulses have an amplitude of -0.3V with respect to 
+blanking level.<br>
+        <br>
+        Properly terminated video signal levels are shown below.</font>
+    
+    
+      
+        <p align="center"><img src="martin_hinner_pal_files/An1-3.jpg" border="0" height="150" width="435"></p>
+    
+
+    
+      <font face="Arial" size="2">( Refer to the Application Note 3 on Characteristic impedance)</font>
+    
+    
+      
+    
+    
+      <font color="#ffff00" face="Arial" size="2">Colour Video Signal</font>
+
+      
+    
+    
+      
+        <p align="justify"><font face="Arial" size="2">True components 
+of  colour video signals   are R,G,B signals . This method of 
+representing colour signals requires 3 video channels or cables and are 
+seldom used, (except in computer monitors)<br>
+        <br>
+        From the RGB signals, luminance can be represented as below.<br>
+        <br>
+
+        Y = 0.3UR + 0.59UG + 0.11UB    is the brightness information.<br>
+        <br>
+        From the R, G, B and Y signals, Colour - Difference signals (R-Y) and (B-Y) are generated.&nbsp;<br>
+        <br>
+        These colour - difference signals are modulated  on a colour  
+sub-carrier   signal (4.43MHz  for PAL standard ) and is added  to the Y
+ information. This  mixed signal is known as composite colour video 
+signal. This composite signal requires only one cable for transmission. 
+At the monitor, special filter circuits  are used to separate the 
+luminance and colour difference signals. From these signals R , G , B 
+information is separated and is fed to the RGB guns in the monitor.<br>
+        <br>
+        To aid separation of colour signals from composite video signal 
+ , a colour burst signal is added to the back porch of Horizontal 
+synchronization signal.<br>
+
+        <br>
+        The composite colour bar video signal is shown below.</font></p>
+    
+    
+      
+        <p align="center"><img src="martin_hinner_pal_files/An1-4.jpg" border="0" height="194" width="411"><br>
+        <font face="Arial" size="2">Colour bar composite video signal</font></p>
+    
+
+    
+      
+    
+    
+      <font color="#ffff00" face="Arial" size="2">Bandwidth</font>
+      
+    
+    
+
+      
+        <p align="justify"><font face="Arial" size="2">A colour bar 
+signal has a maximum bandwidth of 0-5.5 MHz. For monochrome signals, the
+ colour subcarrier and colour components are absent. For such a signal 
+the bandwidth depends on the resolution of the camera. Typically it may 
+vary from 3 MHz for a low resolution camera to 5 MHz for a high 
+resolution camera.<br>
+        <br>
+        It may be noted that the colour information is carried on the 
+sub-carrier which is at high frequency portion of the video signal. Thus
+ when video signal is transmitted over long distances through coaxial 
+cable, the colour saturation, contrast as well as horizontal pixel 
+resolution gets reduced. If the attenuation is too high, the colour 
+video signal may even appear as Black &amp; White on a colour 
+monitor.&nbsp;<br>
+        </font></p>
+
+<h2>Resolution</h2>
+
+        <p align="justify"><font face="Arial" size="2">Resolution is the
+ property of a system to display fine details. The higher the 
+resolution, the more details we can see. The resolution of a TV picture 
+depends on the no. of active scanning lines ,the quality of the camera, 
+the quality of the monitor and the quality of the transmitting media.<br>
+        <br>
+        There are 2 types of resolutions - Vertical and horizontal.<br>
+        <br>
+        Vertical resolution is defined by the no: of horizontal lines / 
+details  that can be resolved  on a  monitor screen.&nbsp;<br>
+        <br>
+        Horizontal resolution is the number of effective pixels / 
+details along a horizontal line that can be resolved on a monitor 
+screen. This depends on the quality of the camera &amp; monitor and 
+essentially on the Band Width of the system.</font></p>
+
+    
+    
+      
+    
+    
+      <font color="#000080" face="Arial" size="2"><b>IMPORTANT NOTE</b></font>
+    
+    
+
+      
+        <p align="justify"><font face="Arial" size="2">Any CCIR / PAL  
+source like camera , test signal generator , Multiplexer  or VCR has to 
+output images confirming to CCIR standard, i.e., @ 50 fields / second 
+rate and are all synchronously timed and has to be as per standards. 
+Only, then any other video system like a video monitor that can lock to 
+it. When VCR is played back in the fast forward mode, fields are output @
+ 50 fields/ sec rate but it will be skipping images (fields) compared to
+ normal playback. Similarly in slow motion mode, VCR will be repeating 
+images (fields) since tape is moving slow. When VCR is in still mode, it
+ is still outputting 50 fields / sec, but all are same video image 
+fields.</font></p>
+    
+    
+      
+    
+    
+      <font color="#000080" face="Arial" size="2"><b>S-VHS SIGNAL</b></font>
+
+    
+    
+      
+        <p align="justify"><font face="Arial" size="2">S VHS or 
+Super-VHS is a VCR format which uses improved circuits to preserve more 
+luminance bandwidth (and hence resolution) during recording and 
+playback. Also such VCRs have dedicated luminance (Y) and chrominance
+        (colour) (C) signal inputs and outputs. The full capability of 
+S-VHS could be obtained by using separate Y and C inputs and outputs. 
+Since Y and C signals are kept separate, some artifacts like 'cross
+        colouring' and 'luminance cross talk' will be less in SVHS 
+recording and playback compared to composite VHS VCRs. But separate Y 
+and C signals require two separate cables to carry them. Also S-VHS VCRs
+ are costlier and special S-VHS tapes are required to get full 
+benefits.&nbsp;<br>
+        </font></p>
+    
+    
+      
+
+    
+    
+      <font color="#000080" face="Arial" size="2"><b>DIGITAL VIDEO&nbsp;</b></font>
+    
+    
+      
+        <p align="justify"><font face="Arial" size="2">When a composite 
+video information has to be processed like that in a Multiplexer , it 
+has to be
+        digitised. This is done as per broadcast standard i.e., CCIR 601
+ standard. In this standard the video is separated into luminance and 
+colour difference signals Y, R -Y, B -Y  and these are sampled @ 13.5 
+MHz  for Y and 6.25 MHz for (R-Y) &amp; (B-Y). The lower sample rate for
+ R-Y and B-Y doesn't result in any quality reduction , since colour 
+bandwidth is less than half of that of luminance information. This 
+digital representation of  DIGITAL video signal is known as 4:2:2 
+standard. This results in 720 pixels /line resolution of video for 
+luminance, and same no. of pixels for combined R-Y &amp; B-Y signals.<br>
+
+        <br>
+        Inferior digital systems uses only 512 pixels per line and hence has lower resolution.</font>
+
+</p><h2>Field Synchronization of PAL System</h2>
+
+<img src="martin_hinner_pal_files/pal.gif">
+
+<p>
+
+<table border="1">
+
+<caption><b><font size="+1">Details of B,G/PAL field synchronizing signals</font></b>
+
+<br>Durations measured between half-amplitude points on the approriate edges
+
+<br>Build-up times measured between 10% to 90% of the pulse edges</caption>
+
+
+
+<tbody><tr>
+
+  <td>Symbol</td>
+
+  <td>Characteristics</td>
+
+  <td><center><b>Value</b></center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>v</center></td>
+
+  <td>Field Period (ms)</td>
+
+  <td><center>20</center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>j</center></td>
+
+  <td>Field-blanking interval</td>
+
+  <td><center>25 H + a</center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>j'</center></td>
+
+  <td>Build-up time of the edges of field-blanking pulse (.s)</td>
+
+  <td><center>0.3.0.1</center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>k</center></td>
+
+  <td>Interval between front edge of field-blanking interval and front edge of first equalizing pulse (.s)</td>
+
+  <td><center>3.2</center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>l</center></td>
+
+  <td>Duration of first sequence of equalizing pulses</td>
+
+  <td><center>2.5 H</center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>m</center></td>
+
+  <td>Duration of sequence of synchronizing pulses</td>
+
+  <td><center>2.5 H</center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>n</center></td>
+
+  <td>Duration of second sequence of equalizing pulses</td>
+
+  <td><center>2.5 H</center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>p</center></td>
+
+  <td>Duration of equalizing pulses (.s)</td>
+
+  <td><center>2.35.0.1</center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>q</center></td>
+
+  <td>Duration of field-synchronizing pulses (.s)</td>
+
+  <td><center>27.3</center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>r</center></td>
+
+  <td>Interval between field-synchronizing pulses (.s)</td>
+
+  <td><center>4.7.0.2</center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>s</center></td>
+
+  <td>Build-up time of synchronizing and equalizing pulses (.s)</td>
+
+  <td><center>0.2.0.1</center></td>
+
+</tr>
+
+</tbody></table>
+
+
+
+</p><p>
+
+</p><h2>Field Synchronization of NTSC System</h2>
+
+<img src="martin_hinner_pal_files/ntsc.gif">
+
+<p>
+
+<table border="1">
+
+<caption><b><font size="+1">Details of M/NTSC field synchronizing signals</font></b>
+
+<br>Durations measured between half-amplitude points on the approriate edges
+
+<br>Build-up times measured between 10% to 90% of the pulse edges
+
+</caption>
+
+<tbody><tr>
+
+  <td>Symbol</td>
+
+  <td>Characteristics</td>
+
+  <td><center><b>Value</b></center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>v</center></td>
+
+  <td>Field Period (ms)</td>
+
+  <td><center>16.6833</center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>j</center></td>
+
+  <td>Field-blanking interval</td>
+
+  <td><center>(19 to 21) H + a</center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>j'</center></td>
+
+  <td>Build-up time of the edges of field-blanking pulse (.s)</td>
+
+  <td><center><u>&lt;</u>6.35</center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>k</center></td>
+
+  <td>Interval between front edge of field-blanking interval and front edge of first equalizing pulse (.s)</td>
+
+  <td><center>1.5.0.1</center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>l</center></td>
+
+  <td>Duration of first sequence of equalizing pulses</td>
+
+  <td><center>3 H</center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>m</center></td>
+
+  <td>Duration of sequence of synchronizing pulses</td>
+
+  <td><center>3 H</center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>n</center></td>
+
+  <td>Duration of second sequence of equalizing pulses</td>
+
+  <td><center>3 H</center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>p</center></td>
+
+  <td>Duration of equalizing pulses (.s)</td>
+
+  <td><center>2.3.0.1</center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>q</center></td>
+
+  <td>Duration of field-synchronizing pulses (.s)</td>
+
+  <td><center>27.1</center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>r</center></td>
+
+  <td>Interval between field-synchronizing pulses (.s)</td>
+
+  <td><center>4.7.0.1</center></td>
+
+</tr>
+
+<tr>
+
+  <td><center>s</center></td>
+
+  <td>Build-up time of synchronizing and equalizing pulses (.s)</td>
+
+  <td><center><u>&lt;</u>0.25</center>
+</td>
+</tr>
+</tbody></table>
+
+</p><h2>Rec.601 digital video:</h2>
+<p>
+720 samples per line, at 13.5 MHz sampling (with digital blanking)<br>
+or 702 samples per line, analogue blanking.<br>
+Note: Pixels are not square.<br>
+</p><p>
+The information in this article is based on article posted to
+sci.engr.television.broadcast newsgroup 13 Nov 1996 by Richard Salmon
+(richard.salmon@rd.bbc.co.uk) and correction posted to same newsgroup by
+Peter Harris (Peter.Harris@bbc.co.uk).
+</p><p>
+
+</p><h2>PAL B/G/D/K/I</h2>
+
+The majority of countries using PAL have television standards with 625 
+lines and 25 frames, differences concern the audio carrier frequency and
+ channel bandwidths. Standards B/G are used in most of Western Europe, 
+standard I in the UK and Ireland, standards D/K in most of Eastern 
+Europe.
+<p>
+
+<b>Timing:</b>
+</p><p>
+There are 625 horizontal lines in a normal (ie: non-high definition) PAL TV "frame"
+(though not all of them are actually visible as some are used for vertical sync, teletext
+data etc). The TV updates the display 50 times per second, however only half of the 
+vertical resolution is available per update - so the TV alternates between two 
+"fields" - the first field writes only the even lines to the screen and the second
+field writes the odd lines. The second field is said to be "interlaced" between the
+first field's scan lines; basically the raster beam is offset half the thickness of a scanline
+every other field. This process creates flicker because half the total image detail is
+actually missing each update. Persistance of human vision helps to disguise the effect
+and it isn't noticeable so much on "real" video but can be a nuisance if you want a
+non-interlaced display as used on 80's home computers, games consoles etc. Apparently
+there is no official PAL standard for this but its easy to implement - more later.
+</p><p>
+As mentioned, some lines are actually outside the visible screen. On my TV, the first
+line visible right at the top of the screen is roughly 28 scan lines* down from the
+vertical sync, and the window lasts 266 lines, leaving 10 lines outside the CRT
+at the bottom. The figures vary slightly on each TV - to be sure of a completely full
+vertical display on all TVs, some extra lines should be used at the top and bottom.
+A window of 288 lines - which is a common video capture resolution setting - should
+guarantee a full vertical display. *Note the the figures given here refer to the
+scan line count of a single field (which have 312 or 313 lines total including the sync).
+
+<table align="right" border="0" cellpadding="0" cellspacing="2">
+<tbody>
+<tr>
+<td>
+<img alt="" src="martin_hinner_pal_files/pal_tv_diagram_interlace.jpg"><br></td>
+</tr>
+</tbody>
+</table>
+</p><p>
+Each scanline lasts 64 microseconds (so the horizontal sync frequency is 
+15625 Hz), of this 64 microsecond period, only the latter 52 microseconds contains 
+picture data (and some of that is not visible). The first 4 microseconds of a scan
+line are taken up by the horizontal sync signal (a low pulse) and following on are 8
+microseconds of what is known as the "back porch" (this holds colour burst data for
+composite signals and is not used in RGB mode - the 8us delay still needs to be there
+though). As mentioned not all of the line is visible, the first and last few microseconds
+of each available line are normally outside the edges of the visible screen but can be
+used to ensure a full horizontal display on all TVs. On my TV, the first visible pixels
+appear at around 1.25 microseconds after the backporch period and the visible line lasts
+about 48.5 microseconds. Note that the horizontal pixel resolution is not fixed, so within
+reason you can use whatever speed pixel clock you want. Of course, you normally want your
+pixels to be as square as possible and a common pixel rate used in DVD players etc is
+14.75MHz (so 7.375MHz for non-interlaced pixels). I used an 8MHz clock throughout my Z80
+project - this made the time divisions for the sync periods etc simple integers -
+and the pixels were not noticably rectangular.
+</p><p>
+Vertical sync is obtained from the last few and first lines of each field. These 
+lines contain a series of special sync pulses which differ on alternate fields: -
+</p><p>
+The format for field 1 (starting at line 623.. ends at line 5 inclusive):
+</p><p>
+</p><ul><li>6 Pre-equalizing pulses.. 5 long sync pulses... 5  Post-equalizing pulses.</li></ul>
+
+<p>
+The format for field 2 (starting at line 311.. ends at line 317 inclusive):
+</p><p>
+</p><ul><li>5 Pre-equalizing pulses.. 5 long sync pulses... 4 Post-equalizing pulses.</li></ul>
+<p>
+The pre- and post- equalizing pulses are "short syncs" (active low as usual) of 
+2 microseconds followed by a delay of 30 microseconds - therefore they last half 
+a scanline each.  The "long syncs" are 30 microsecond low pulses with a 2 
+microsecond delay after them, they last half a line each too. The different 
+vertical sync pulse trains of each field is the means by which the raster beam 
+is offset half a scan line for the interlacing.
+</p><p>
+<table align="right" border="0" cellpadding="0" cellspacing="2">
+<tbody>
+<tr>
+<td>
+<img alt="" src="martin_hinner_pal_files/pal_tv_diagram_non_interlace.jpg"><br></td>
+</tr>
+</tbody>
+</table>
+</p><p>
+
+You can stop the display being interlaced if you want - the solution appears to 
+be to just use the same sync pulse train each field, ie: the 6-5-5 one from 
+'field one' (which lasts 8 whole lines). I've seen it done like this in chip 
+data sheets and tested it with my Z80 project (also confirmed with a 
+oscilloscope connected to a Playstation2 running a non-interlaced game). The only 'problem' 
+is that you're now dealing with 2 fields of 312 lines instead of 312.5 - which means 
+you get a frame rate of 50.0801Hz instead of 50Hz - but TVs don't seem to have a 
+problem with it. Presumably its possible to alternate between two different sized frames
+(312 and 313 lines) to maintain the 50Hz average but I've not tried it.
+</p><p>
+
+<br clear="all">
+
+</p><h2>Further Reading:</h2>
+<p></p><ul>
+
+<li><a href="http://www.danalee.ca/ttt/analog_video.htm">Analogue Video</a></li>
+<li><a href="http://www.rickard.gunee.com/projects/video/pic/gamesys.php">Rickards Pic Page</a></li>
+<li><a href="http://www.doom9.org/index.html?/capture/analogue_video.html">Doom9 Analogue Video</a></li>
+</ul>
+
+</body></html>

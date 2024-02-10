@@ -1,0 +1,86 @@
+; progressive csync
+.program csync
+
+; PIO Hz: 1 Mhz
+; 1 us = 1 tics.
+; 1 tic = 1 us.
+
+; vsync top, 5 lines:
+; 5 pulses of 32us, up 30us
+; 5 pulses of 32us, up 2us
+
+; hsync scan line:
+; 4us + back porch 8 us
+
+; vsync bottom, 3 lines:
+; 6 sections of 32us, up 2u  down 30us
+
+.define border_tics 6
+
+pull block
+
+.wrap_target            ; Program wraps to here
+    ; First 5 the long pulses
+    set x,4
+loop0:
+    set pins, 0 [29]
+    set pins, 1
+    jmp x-- loop0
+ 
+    ; second 5 the short pulses
+    set pins, 0
+    set x,3
+loop1:
+    set pins, 1 [29]
+    set pins, 0
+    jmp x-- loop1
+	set pins, 1 [28]
+
+    mov x, osr
+scanline_loop: ; total 64 us.
+    set pins, 0 [4] ; hsync 4 us
+	set pins, 1 [5 + border_tics] ; back porch 8 us
+	irq 0 [31 - border_tics]      ; trigger irq to start rgb transfer and wait 52 us.
+    jmp x-- scanline_loop [20]
+
+    ; vsync, 6 short pulses: 2us down, 30us up.
+    set pins, 0
+    set x,4
+vsync_loop:
+    set pins, 1 [29]
+    set pins, 0
+    jmp x-- vsync_loop
+    set pins, 1 [28] ; 1 less for the first wrap instruction.
+.wrap
+
+
+% c-sdk {
+static inline void csync_program_init(PIO pio, uint sm, uint offset, uint pin) {
+
+    // creates state machine configuration object c, sets
+    // to default configurations. I believe this function is auto-generated
+    // and gets a name of <program name>_program_get_default_config
+    // Yes, page 40 of SDK guide
+    pio_sm_config c = csync_program_get_default_config(offset);
+
+    // Map the state machine's SET pin group to one pin, namely the `pin`
+    // parameter to this function.
+    sm_config_set_set_pins(&c, pin, 1);
+
+    // Set clock division (div by 125 for 1 MHz state machine)
+    sm_config_set_clkdiv(&c, 125) ;
+
+    // Set this pin's GPIO function (connect PIO to the pad)
+    pio_gpio_init(pio, pin);
+    // pio_gpio_init(pio, pin+1);
+
+    // Set the pin direction to output at the PIO
+    pio_sm_set_consecutive_pindirs(pio, sm, pin, 1, true);
+
+    // Load our configuration, and jump to the start of the program
+    pio_sm_init(pio, sm, offset, &c);
+
+    // Set the state machine running (commented out so can be synchronized w/ vsync)
+    // pio_sm_set_enabled(pio, sm, true);
+}
+%}
