@@ -36,18 +36,16 @@
 #include "csync.pio.h"
 #include "rgb.pio.h"
 
+#define SCAN_LINES 304
+#define BORDER_TOP_LINES 42
+#define BORDER_BOTTOM_LINES 22
+
 #define RES_X 320
-#define RES_Y 304
+#define RES_Y (SCAN_LINES - BORDER_TOP_LINES - BORDER_BOTTOM_LINES)
 
 // Length of the pixel array, and number of DMA transfers
-#define TXCOUNT ((RES_X >> 1) * RES_Y) // Total pixels/2 (since we have 2 pixels per byte)
-
-// Pixel color array that is DMA's to the PIO machines and
-// a pointer to the ADDRESS of this color array.
-// Note that this array is automatically initialized to all 0's (black)
-static unsigned char s_framebuffer[TXCOUNT];
-static const unsigned char* s_address_pointer[1] = {s_framebuffer};
-// static unsigned char* address_pointer = &framebuffer[0];
+#define LINE_COUNT (RES_X >> 1)
+#define FRAMEBUFFER_SIZE (LINE_COUNT * RES_Y) // Total pixels/2 (since we have 2 pixels per byte)
 
 // Give the I/O pins that we're using some names that make sense
 #define CSYNC 16
@@ -65,23 +63,30 @@ static const unsigned char* s_address_pointer[1] = {s_framebuffer};
 #define CYAN 6
 #define WHITE 7
 
+// Pixel color array that is DMA's to the PIO machines and
+// a pointer to the ADDRESS of this color array.
+// Note that this array is automatically initialized to all 0's (black)
+static uint8_t s_framebuffer[FRAMEBUFFER_SIZE];
+static const uint8_t* s_address_pointer[1] = {s_framebuffer};
+static const uint8_t s_border_color = 0; //(GREEN << 3) | GREEN;
+
 // A function for drawing a pixel with a specified color.
 // Note that because information is passed to the PIO state machines through
 // a DMA channel, we only need to modify the contents of the array and the
 // pixels will be automatically updated on the screen.
-void drawPixel(int x, int y, char color)
+void draw_pixel(uint32_t x, uint32_t y, uint8_t color)
 {
-    const int max_x = RES_X - 1;
-    const int max_y = RES_Y - 1;
+    const uint32_t k_max_x = RES_X - 1;
+    const uint32_t k_max_y = RES_Y - 1;
     // Range checks
-    if (x > max_x)
-        x = max_x;
+    if (x > k_max_x)
+        x = k_max_x;
     if (x < 0)
         x = 0;
     if (y < 0)
         y = 0;
-    if (y > RES_Y)
-        y = RES_Y;
+    if (y > k_max_y)
+        y = k_max_y;
 
     // Which pixel is it?
     int pixel = ((RES_X * y) + x);
@@ -95,13 +100,20 @@ void drawPixel(int x, int y, char color)
     }
     else
     {
-        s_framebuffer[pixel >> 1] |= (color);
+        s_framebuffer[pixel >> 1] |= color;
     }
 }
 
+struct control_block_t
+{
+    uint32_t ctrl;					// Must maps to al1_ctrl
+    const volatile void* read_addr; // Must maps to al1_read_addr
+    io_wo_32* write_addr;			// Must maps to al1_write_addr
+    uint32_t count;					// Must maps to al1_transfer_count_trig
+};
+
 int main()
 {
-
     // Initialize stdio
     stdio_init_all();
 
@@ -139,42 +151,74 @@ int main()
     // ===========================-== DMA Data Channels =================================================
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // DMA channels - 0 sends color data, 1 reconfigures and restarts 0
-    const uint rgb_dma_chan_0 = dma_claim_unused_channel(true);
-    const uint rgb_dma_chan_1 = dma_claim_unused_channel(true);
+    struct control_block_t control_blocks[] = {
+        {0, &s_border_color, &pio->txf[rgb_sm], LINE_COUNT * BORDER_TOP_LINES},	   // top border
+        {0, s_framebuffer, &pio->txf[rgb_sm], LINE_COUNT * RES_Y},				   // real pixels
+        {0, &s_border_color, &pio->txf[rgb_sm], LINE_COUNT * BORDER_BOTTOM_LINES}, // botttom border
+    };
 
-    // Channel Zero (sends color data to PIO RGB machine)
-    dma_channel_config dma_cfg_0 = dma_channel_get_default_config(rgb_dma_chan_0); // default configs
-    channel_config_set_transfer_data_size(&dma_cfg_0, DMA_SIZE_8);				   // 8-bit txfers
-    channel_config_set_read_increment(&dma_cfg_0, true);						   // yes read incrementing
-    channel_config_set_write_increment(&dma_cfg_0, false);						   // no write incrementing
-    channel_config_set_dreq(&dma_cfg_0, pio_get_dreq(pio, rgb_sm, true));		   // DREQ_PIO0_TX2 pacing (FIFO)
-    channel_config_set_irq_quiet(&dma_cfg_0, true);
-    channel_config_set_chain_to(&dma_cfg_0, rgb_dma_chan_1); // chain to other channel
+    const uint channel_0 = dma_claim_unused_channel(true); // Transfer color
+    const uint channel_1 = dma_claim_unused_channel(true); // Configure channel 1 to transfer top border + framebuffer + bottom border.
+    const uint channel_2 = dma_claim_unused_channel(true); // Restart channel 2.
 
-    dma_channel_configure(rgb_dma_chan_0,	 // Channel to be configured
-                          &dma_cfg_0,		 // The configuration we just created
-                          &pio->txf[rgb_sm], // write address (RGB PIO TX FIFO)
-                          &s_framebuffer,		 // The initial read address (pixel color array)
-                          TXCOUNT,			 // Number of transfers; in this case each is 1 byte.
-                          false				 // Don't start immediately.
-    );
+    {
+        // Transfer colors to the PIO SM.
+        dma_channel_config cfg = dma_channel_get_default_config(channel_0); // default configs
+        channel_config_set_transfer_data_size(&cfg, DMA_SIZE_8);			// 8-bit txfers
+        channel_config_set_read_increment(&cfg, true);						// yes read incrementing
+        channel_config_set_write_increment(&cfg, false);					// no write incrementing
+        channel_config_set_dreq(&cfg, pio_get_dreq(pio, rgb_sm, true));		// DREQ_PIO0_TX2 pacing (FIFO)
+        channel_config_set_irq_quiet(&cfg, true);
+        channel_config_set_chain_to(&cfg, channel_1);
 
-    // Channel One (reconfigures the first channel)
-    dma_channel_config dma_cfg_1 = dma_channel_get_default_config(rgb_dma_chan_1); // default configs
-    channel_config_set_transfer_data_size(&dma_cfg_1, DMA_SIZE_32);				   // 32-bit txfers
-    channel_config_set_read_increment(&dma_cfg_1, false);						   // no read incrementing
-    channel_config_set_write_increment(&dma_cfg_1, false);						   // no write incrementing
-    channel_config_set_irq_quiet(&dma_cfg_1, true);
-    channel_config_set_chain_to(&dma_cfg_1, rgb_dma_chan_0); // chain to other channel
+        // ctrl for the pixels.
+        control_blocks[1].ctrl = cfg.ctrl;
 
-    dma_channel_configure(rgb_dma_chan_1,						 // Channel to be configured
-                          &dma_cfg_1,							 // The configuration we just created
-                          &dma_hw->ch[rgb_dma_chan_0].read_addr, // Write address (channel 0 read address)
-                          s_address_pointer,						 // Read address (POINTER TO AN ADDRESS)
-                          1,									 // Number of transfers, in this case each is 4 byte
-                          false									 // Don't start immediately.
-    );
+        // ctrl for the borders, the color is always the same so no read increment.
+        channel_config_set_read_increment(&cfg, false);
+        control_blocks[0].ctrl = cfg.ctrl;
+
+        // for the last entry set the chain to channel 2 to trigger it once transfering finishes.
+        channel_config_set_chain_to(&cfg, channel_2);
+        control_blocks[2].ctrl = cfg.ctrl;
+    }
+
+    {
+        // DMA channel 1 configure dma 0 (aka RGB data).
+        dma_channel_config cfg = dma_channel_get_default_config(channel_1);
+        channel_config_set_transfer_data_size(&cfg, DMA_SIZE_32);
+        channel_config_set_read_increment(&cfg, true);
+        channel_config_set_write_increment(&cfg, true);
+        channel_config_set_ring(&cfg, true, 4); // 16 byte boundary on write ptr
+        channel_config_set_irq_quiet(&cfg, true);
+
+        dma_channel_configure(channel_1,
+                              &cfg,
+                              &dma_hw->ch[channel_0].al1_ctrl, // Initial write address
+                              control_blocks,				   // Initial read address
+                              4,							   // Halt after each control block
+                              false							   // Don't start yet
+        );
+    }
+
+    const volatile void* control_block_ptr[] = {control_blocks};
+
+    {
+        // DMA Channel 2: restarts the DMA channel 1
+        dma_channel_config cfg = dma_channel_get_default_config(channel_2); // default configs
+        channel_config_set_transfer_data_size(&cfg, DMA_SIZE_32);			// 32-bit txfers
+        channel_config_set_read_increment(&cfg, false);						// no read incrementing
+        channel_config_set_write_increment(&cfg, false);					// no write incrementing
+        channel_config_set_irq_quiet(&cfg, true);
+
+        dma_channel_configure(channel_2,								 // Channel to be configured
+                              &cfg,										 // The configuration we just created
+                              &dma_hw->ch[channel_1].al3_read_addr_trig, // Write address (channel 1 read address)
+                              control_block_ptr,						 // Read address (POINTER TO AN ADDRESS)
+                              1,										 // Number of transfers, in this case each is 4 byte
+                              false										 // Don't start immediately.
+        );
+    }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -182,7 +226,7 @@ int main()
     // Initialize PIO state machine counters. This passes the information to the state machines
     // that they retrieve in the first 'pull' instructions, before the .wrap_target directive
     // in the assembly. Each uses these values to initialize some counting registers.
-    pio_sm_put_blocking(pio, csync_sm, RES_Y - 1);
+    pio_sm_put_blocking(pio, csync_sm, SCAN_LINES - 1);
     pio_sm_put_blocking(pio, rgb_sm, (RES_X >> 1) - 2);
 
     // Start the two pio machine IN SYNC
@@ -191,11 +235,8 @@ int main()
     // start them all simultaneously anyway.
     pio_enable_sm_mask_in_sync(pio, (1u << csync_sm) | (1u << rgb_sm));
 
-    // Start DMA channel 0. Once started, the contents of the pixel color array
-    // will be continously DMA's to the PIO machines that are driving the screen.
-    // To change the contents of the screen, we need only change the contents
-    // of that array.
-    dma_start_channel_mask((1u << rgb_dma_chan_1));
+    // Start DMA channel 1 to transfer the control blocks to dma which will send the RGB data.
+    dma_start_channel_mask((1u << channel_1));
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     // ===================================== An Example =================================================
@@ -217,7 +258,7 @@ int main()
         for (y = 0; y < RES_Y; y++)
         { // For each y-coordinate . . .
 
-            if (ycounter == 60)
+            if (ycounter == 40)
             {							 //   If the y-counter is 60 . . .
                 ycounter = 0;			 //     Zero the counter
                 index = (index + 1) % 8; //     Increment the color index
@@ -225,20 +266,13 @@ int main()
             ycounter += 1;				 //   Increment the y-counter
             for (x = 0; x < RES_X; x++)
             { //   For each x-coordinate . . .
-                if (y > 290)
-                {
-                    drawPixel(x, y, RED);
-                }
-                else
-                {
-                    if (xcounter == 40)
-                    {								//     If the x-counter is 80 . . .
-                        xcounter = 0;				//        Zero the x-counter
-                        index = (index + 1) % 8;	//        Increment the color index
-                    }								//
-                    xcounter += 1;					//     Increment the x-counter
-                    drawPixel(x, y, colors[index]); //     Draw a pixel to the screen
-                }
+                if (xcounter == 40)
+                {								 //     If the x-counter is 80 . . .
+                    xcounter = 0;				 //        Zero the x-counter
+                    index = (index + 1) % 8;	 //        Increment the color index
+                }								 //
+                xcounter += 1;					 //     Increment the x-counter
+                draw_pixel(x, y, colors[index]); //     Draw a pixel to the screen
             }
         }
     }
@@ -247,4 +281,3 @@ int main()
     {
     }
 }
-

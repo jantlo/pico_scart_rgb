@@ -15,7 +15,7 @@
 ; vsync bottom, 3 lines:
 ; 6 sections of 32us, up 2u  down 30us
 
-.define border_tics 6
+.define border_tics 7
 
 pull block
 
