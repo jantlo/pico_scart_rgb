@@ -12,14 +12,14 @@ mov y, osr
 .wrap_target
 
 set pins, 0
-mov x, y         ; Zero RGB pins in blanking
+mov x, y                ; Zero RGB pins in blanking
 
 pull block				; Pull color value
 wait 1 irq 0 			; Wait for csync
 
 colorloop:
 	out pins, 3 [2]			; Push out to pins (first pixel)
-	out pins, 3			; Push out to pins (next pixel)
+	out pins, 3			    ; Push out to pins (next pixel)
     pull block				; Pull color value
 	jmp x-- colorloop		; Stay here thru horizontal active mode
 .wrap
